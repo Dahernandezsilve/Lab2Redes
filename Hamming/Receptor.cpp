@@ -73,8 +73,6 @@ int main() {
     // Detectar y corregir errores 🕵️‍♂️
     auto [correctedCode, errorPositions] = detectAndCorrectErrors(hammingCode);
 
-
-
     if (errorPositions.empty()) {
         cout << "No se detectaron errores. ✅" << endl;
         vector<int> originalMessage = extractOriginalMessage(correctedCode);
