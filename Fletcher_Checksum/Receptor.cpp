@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// Función para calcular el checksum de Fletcher para bloques de 8 bits
+// Algoritmo para verificar bloques de 8 bits
 pair<int, int> calculateFletcherChecksum8(const vector<int>& data) {
     int sum1 = 0;
     int sum2 = 0;
@@ -16,7 +16,7 @@ pair<int, int> calculateFletcherChecksum8(const vector<int>& data) {
     return {sum1, sum2};
 }
 
-// Función para calcular el checksum de Fletcher para bloques de 16 bits
+// Algoritmo para verificar bloques de 16 bits
 pair<int, int> calculateFletcherChecksum16(const vector<int>& data) {
     int sum1 = 0;
     int sum2 = 0;
@@ -27,7 +27,7 @@ pair<int, int> calculateFletcherChecksum16(const vector<int>& data) {
     return {sum1, sum2};
 }
 
-// Función para calcular el checksum de Fletcher para bloques de 32 bits
+// Algoritmo para verificar bloques de 32 bits
 pair<int, int> calculateFletcherChecksum32(const vector<int>& data) {
     uint32_t sum1 = 0;
     uint32_t sum2 = 0;
@@ -38,19 +38,19 @@ pair<int, int> calculateFletcherChecksum32(const vector<int>& data) {
     return {sum1, sum2};
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 8 bits
+// Función encargada de verificar que la codificación fletcher cheksum esté correcta en 8 bits
 bool verifyFletcherChecksum8(const vector<int>& data, int receivedSum1, int receivedSum2) {
     auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum8(data);
     return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 16 bits
+// Función encargada de verificar que la codificación fletcher cheksum esté correcta en 16 bits
 bool verifyFletcherChecksum16(const vector<int>& data, int receivedSum1, int receivedSum2) {
     auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum16(data);
     return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 32 bits
+// Función encargada de verificar que la codificación fletcher cheksum esté correcta en 32 bits
 bool verifyFletcherChecksum32(const vector<int>& data, int receivedSum1, int receivedSum2) {
     auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum32(data);
     return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
@@ -65,11 +65,12 @@ vector<int> addPadding(const vector<int>& data, int blockSize) {
     return paddedData;
 }
 
-// Función para extraer el mensaje original (sin los bits de checksum)
+// Función para extraer el mensaje original removiendo los bits de cheksum
 vector<int> extractOriginalMessage(const vector<int>& data) {
     return vector<int>(data.begin(), data.end() - 2);
 }
 
+// Función utilizada para controlar el funcionamiento del receptor. 
 int main() {
     string input;
     cout << "Ingrese el mensaje binario con el checksum generado por el emisor 📥:";
