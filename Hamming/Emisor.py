@@ -22,7 +22,6 @@ def paridad_hamming(mensaje):
 
     return ''.join(mensaje_extendido)
 
-# Ejemplo de uso
 mensaje = input("Ingrese el mensaje a codificar: ")
 mensaje_codificado = paridad_hamming(mensaje)
 print(f"Mensaje codificado con Hamming: {mensaje_codificado}")
