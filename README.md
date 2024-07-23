@@ -4,7 +4,7 @@
 Este laboratorio se enfoca en la implementación de técnicas de detección y corrección de errores en la transmisión de mensajes binarios. Se han abordado dos principales técnicas:
 
 - **Corrección de Errores:**
-  - **Códigos de Hamming** 🛠️: Implementados para códigos (n, m) que cumplen con la condición \((m + r + 1) \leq 2^r\).
+  - **Códigos de Hamming** 🛠️: Implementados para códigos (n, m) que cumplen con la condición \((m + r + 1)<=2^r\).
 
 - **Detección de Errores:**
   - **Fletcher Checksum** ✅: Se utiliza para tramas de longitud \(k\) con bloques de 8, 16 o 32 bits. Se aplicará padding si es necesario para ajustar la trama al tamaño del bloque (agregar 0s a la trama).
