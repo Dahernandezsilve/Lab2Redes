@@ -3,7 +3,6 @@ def fletcher8(data: str) -> int:
     sum2 = 0
     
     for char in data:
-        # Asegúrate de que `char` sea un '0' o '1'
         if char not in '01':
             raise ValueError("Data must be a binary string with '0' and '1' characters only.")
         sum1 = (sum1 + int(char)) % 255
@@ -16,7 +15,6 @@ def fletcher16(data: str) -> int:
     sum2 = 0
     
     for char in data:
-        # Asegúrate de que `char` sea un '0' o '1'
         if char not in '01':
             raise ValueError("Data must be a binary string with '0' and '1' characters only.")
         sum1 = (sum1 + int(char)) % 65535
@@ -29,7 +27,6 @@ def fletcher32(data: str) -> int:
     sum2 = 0
     
     for char in data:
-        # Asegúrate de que `char` sea un '0' o '1'
         if char not in '01':
             raise ValueError("Data must be a binary string with '0' and '1' characters only.")
         sum1 = (sum1 + int(char)) % 4294967295
@@ -37,39 +34,40 @@ def fletcher32(data: str) -> int:
     
     return (sum2 << 32) | sum1
 
-def pad_message(data: str, block_size: int) -> str:
-    padding_length = (block_size - (len(data) % block_size)) % block_size
-    if padding_length != 0:
-        data += '0' * padding_length
-    return data, padding_length
+def padMessage(data: str, blockSize: int) -> str:
+    paddingLength = (blockSize - (len(data) % blockSize)) % blockSize
+    if paddingLength != 0:
+        data += '0' * paddingLength
+    return data, paddingLength
 
-def add_checksum_to_message(data: str, block_size: int) -> str:
-    padded_data, padding_length = pad_message(data, block_size)
-    if block_size == 8:
-        checksum = fletcher8(padded_data)
-        checksum_bits = 16  # 8 bits para cada suma
-    elif block_size == 16:
-        checksum = fletcher16(padded_data)
-        checksum_bits = 32
-    elif block_size == 32:
-        checksum = fletcher32(padded_data)
-        checksum_bits = 64
+def addChecksumToMessage(data: str, blockSize: int) -> str:
+    paddedData, paddingLength = padMessage(data, blockSize)
+    
+    if blockSize == 8:
+        checksum = fletcher8(paddedData)
+        checksumBits = 16  # 8 bits para cada suma
+    elif blockSize == 16:
+        checksum = fletcher16(paddedData)
+        checksumBits = 32
+    elif blockSize == 32:
+        checksum = fletcher32(paddedData)
+        checksumBits = 64
     else:
         raise ValueError("Unsupported block size")
 
-    checksum_bin = f"{checksum:0{checksum_bits}b}"
-    message_with_checksum = padded_data + checksum_bin
-    return message_with_checksum, checksum_bin, padding_length
+    checksumHex = f"{checksum:0{checksumBits//4}X}"
+    checksumBin = f"{int(checksumHex, 16):0{checksumBits}b}"
+    messageWithChecksum = paddedData + checksumBin
+    return messageWithChecksum, checksumBin, paddingLength
 
-# Programa principal
 def main():
-    print("--- Emisor ---")
-    message = input("Ingrese el mensaje binario: ")
-    block_size = int(input("Ingrese el tamaño del bloque (8, 16, o 32): "))
+    print("📡 --- Emisor ---")
+    message = input("🔠 Ingrese el mensaje binario: ")
+    blockSize = int(input("📏 Ingrese el tamaño del bloque (8, 16, o 32): "))
     
-    message_with_checksum, checksum_bin, padding_length = add_checksum_to_message(message, block_size)
-    print(f"Mensaje con checksum: {message_with_checksum}")
-    print(f"Checksum: {checksum_bin}")
+    messageWithChecksum, checksumBin, paddingLength = addChecksumToMessage(message, blockSize)
+    print(f"📜 Mensaje con checksum: {messageWithChecksum}")
+    print(f"🔍 Checksum en binario: {checksumBin}")
 
 if __name__ == "__main__":
     main()
