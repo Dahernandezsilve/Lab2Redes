@@ -1,122 +1,89 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <bitset>
 #include <cstdint>
 
-using namespace std;
-
-// Función para calcular el checksum de Fletcher para bloques de 8 bits
-pair<int, int> calculateFletcherChecksum8(const vector<int>& data) {
-    int sum1 = 0;
-    int sum2 = 0;
-    for (int value : data) {
-        sum1 = (sum1 + value) % 255;
+uint16_t fletcher8(const std::string &data) {
+    uint16_t sum1 = 0;
+    uint16_t sum2 = 0;
+    
+    for (char char_digit : data) {
+        sum1 = (sum1 + (char_digit - '0')) % 255;
         sum2 = (sum2 + sum1) % 255;
     }
-    return {sum1, sum2};
+    
+    return (sum2 << 8) | sum1;
 }
 
-// Función para calcular el checksum de Fletcher para bloques de 16 bits
-pair<int, int> calculateFletcherChecksum16(const vector<int>& data) {
-    int sum1 = 0;
-    int sum2 = 0;
-    for (int value : data) {
-        sum1 = (sum1 + value) % 65535;
-        sum2 = (sum2 + sum1) % 65535;
-    }
-    return {sum1, sum2};
-}
-
-// Función para calcular el checksum de Fletcher para bloques de 32 bits
-pair<int, int> calculateFletcherChecksum32(const vector<int>& data) {
+uint32_t fletcher16(const std::string &data) {
     uint32_t sum1 = 0;
     uint32_t sum2 = 0;
-    for (int value : data) {
-        sum1 = (sum1 + value) % 4294967295;
+    
+    for (char char_digit : data) {
+        sum1 = (sum1 + (char_digit - '0')) % 65535;
+        sum2 = (sum2 + sum1) % 65535;
+    }
+    
+    return (sum2 << 16) | sum1;
+}
+
+uint64_t fletcher32(const std::string &data) {
+    uint64_t sum1 = 0;
+    uint64_t sum2 = 0;
+    
+    for (char char_digit : data) {
+        sum1 = (sum1 + (char_digit - '0')) % 4294967295;
         sum2 = (sum2 + sum1) % 4294967295;
     }
-    return {sum1, sum2};
+    
+    return (sum2 << 32) | sum1;
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 8 bits
-bool verifyFletcherChecksum8(const vector<int>& data, int receivedSum1, int receivedSum2) {
-    auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum8(data);
-    return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
+std::string extract_original_message(const std::string &data, int checksum_bits) {
+    return data.substr(0, data.size() - checksum_bits);
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 16 bits
-bool verifyFletcherChecksum16(const vector<int>& data, int receivedSum1, int receivedSum2) {
-    auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum16(data);
-    return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
+uint64_t extract_checksum(const std::string &data, int checksum_bits) {
+    std::string checksum_bin = data.substr(data.size() - checksum_bits);
+    return std::bitset<64>(checksum_bin).to_ullong();
 }
 
-// Función para verificar el checksum de Fletcher para bloques de 32 bits
-bool verifyFletcherChecksum32(const vector<int>& data, int receivedSum1, int receivedSum2) {
-    auto [calculatedSum1, calculatedSum2] = calculateFletcherChecksum32(data);
-    return (calculatedSum1 == receivedSum1) && (calculatedSum2 == receivedSum2);
-}
-
-// Función para agregar padding para bloques de 8, 16, o 32 bits
-vector<int> addPadding(const vector<int>& data, int blockSize) {
-    vector<int> paddedData = data;
-    while (paddedData.size() % blockSize != 0) {
-        paddedData.push_back(0);
+bool verify_checksum(const std::string &data, uint64_t received_checksum, int block_size) {
+    uint64_t calculated_checksum;
+    if (block_size == 8) {
+        calculated_checksum = fletcher8(data);
+    } else if (block_size == 16) {
+        calculated_checksum = fletcher16(data);
+    } else if (block_size == 32) {
+        calculated_checksum = fletcher32(data);
+    } else {
+        throw std::invalid_argument("Unsupported block size");
     }
-    return paddedData;
-}
-
-// Función para extraer el mensaje original (sin los bits de checksum)
-vector<int> extractOriginalMessage(const vector<int>& data) {
-    return vector<int>(data.begin(), data.end() - 2);
+    
+    return calculated_checksum == received_checksum;
 }
 
 int main() {
-    string input;
-    cout << "Ingrese el mensaje binario con el checksum generado por el emisor 📥:";
-    cin >> input;
-
-    vector<int> data(input.size());
-    for (size_t i = 0; i < input.size(); i++) {
-        data[i] = input[i] - '0';
-    }
-
-    // Elegir el tamaño del bloque (8, 16, o 32)
-    int blockSize;
-    cout << "Ingrese el tamaño del bloque (8, 16, o 32) 📝: ";
-    cin >> blockSize;
-
-    // Agregar padding si es necesario
-    vector<int> paddedData = addPadding(data, blockSize);
-
-    // Extraer el checksum recibido
-    int receivedSum1 = paddedData[paddedData.size() - 2];
-    int receivedSum2 = paddedData[paddedData.size() - 1];
+    std::cout << "\n--- Receptor ---" << std::endl;
+    std::string received_message;
+    std::cout << "Ingrese el mensaje binario con el checksum: ";
+    std::cin >> received_message;
+    int block_size;
+    std::cout << "Ingrese el tamaño del bloque (8, 16, o 32): ";
+    std::cin >> block_size;
     
-    // Verificar el checksum 🕵️‍♂️
-    vector<int> originalData(paddedData.begin(), paddedData.end() - 2);
-    bool isValid = false;
-    if (blockSize == 8) {
-        isValid = verifyFletcherChecksum8(originalData, receivedSum1, receivedSum2);
-    } else if (blockSize == 16) {
-        isValid = verifyFletcherChecksum16(originalData, receivedSum1, receivedSum2);
-    } else if (blockSize == 32) {
-        isValid = verifyFletcherChecksum32(originalData, receivedSum1, receivedSum2);
+    int checksum_bits = block_size == 8 ? 16 : block_size == 16 ? 32 : 64;
+    std::string original_message = extract_original_message(received_message, checksum_bits);
+    uint64_t received_checksum = extract_checksum(received_message, checksum_bits);
+    
+    bool is_valid = verify_checksum(original_message, received_checksum, block_size);
+    
+    if (is_valid) {
+        std::cout << "No se detectaron errores. ✅" << std::endl;
+        std::cout << "Mensaje original: " << original_message << std::endl;
     } else {
-        cout << "Tamaño de bloque no soportado. ❌" << endl;
-        return 1;
+        std::cout << "Se detectaron errores en el mensaje. Se descarta el mensaje ❌" << std::endl;
     }
-
-    if (isValid) {
-        cout << "No se detectaron errores. ✅" << endl;
-        vector<int> originalMessage = extractOriginalMessage(paddedData);
-        cout << "Mensaje original: ";
-        for (int bit : originalMessage) {
-            cout << bit;
-        }
-        cout << endl;
-    } else {
-        cout << "Se detectaron errores en el mensaje. Se descarta el mensaje ❌" << endl;
-    }
-
+    
     return 0;
 }
