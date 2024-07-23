@@ -1,22 +1,4 @@
-# Detección y Corrección de Errores - Pt 1
-
-## Universidad del Valle de Guatemala
-18 Avenida 11-95 Guatemala  
-Facultad de Ingeniería  
-Departamento de Computación
-
-### Integrantes:
-- Diego Alexander Hernández Silvestre, 21270
-- Linda Inés Jiménez Vides, 21169
-
-### Curso:
-Redes
-
-### Sección:
-Sección 10
-
-### Guatemala, 25 de julio de 2024
-
+# Laboratorio 2 - Redes - Detección y Corrección de Errores - Pt 1
 ## Descripción
 
 Este laboratorio se enfoca en la implementación de técnicas de detección y corrección de errores en la transmisión de mensajes binarios. Se han abordado dos principales técnicas:
